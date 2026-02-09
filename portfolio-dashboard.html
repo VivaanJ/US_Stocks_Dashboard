@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e27;
+            --bg-secondary: #141936;
+            --bg-card: #1a1f3a;
+            --accent-green: #00ff88;
+            --accent-red: #ff4757;
+            --accent-blue: #3b82f6;
+            --accent-purple: #a78bfa;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --border: #2d3748;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(167, 139, 250, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(0, 255, 136, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        header {
+            margin-bottom: 3rem;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            letter-spacing: -2px;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border-radius: 50px;
+            border: 1px solid var(--border);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(1.2);
+            }
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            animation: fadeIn 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-blue);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            font-family: 'Syne', sans-serif;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .positive {
+            color: var(--accent-green);
+        }
+
+        .negative {
+            color: var(--accent-red);
+        }
+
+        /* Holdings Table */
+        .holdings-section {
+            animation: fadeIn 1s ease-out 0.4s both;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .refresh-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .refresh-btn.loading {
+            opacity: 0.7;
+            cursor: wait;
+        }
+
+        .table-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--bg-secondary);
+        }
+
+        th {
+            padding: 1.25rem 1.5rem;
+            text-align: left;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        td {
+            padding: 1.5rem 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .ticker {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--accent-blue);
+        }
+
+        .stock-name {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .price {
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+
+        .change-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            gap: 0.25rem;
+        }
+
+        .change-badge.positive {
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--accent-green);
+        }
+
+        .change-badge.negative {
+            background: rgba(255, 71, 87, 0.1);
+            color: var(--accent-red);
+        }
+
+        /* Loading State */
+        .loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid var(--accent-red);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            color: var(--accent-red);
+        }
+
+        /* Chart Placeholder */
+        .chart-section {
+            margin-top: 3rem;
+            animation: fadeIn 1.2s ease-out 0.6s both;
+        }
+
+        .chart-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.875rem;
+            }
+
+            th, td {
+                padding: 1rem;
+            }
+        }
+
+        .footer {
+            margin-top: 4rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            padding: 2rem;
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Portfolio</h1>
+            <div class="subtitle">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span id="market-status">Connecting...</span>
+                </div>
+                <span id="last-update">Last updated: --</span>
+            </div>
+        </header>
+
+        <div id="error-container"></div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Investment</div>
+                <div class="stat-value" id="total-investment">$0.00</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Current Value</div>
+                <div class="stat-value" id="current-value">$0.00</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total P&L</div>
+                <div class="stat-value" id="total-pnl">$0.00</div>
+                <div class="stat-change" id="total-pnl-change">
+                    <span>0.00%</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Best Performer</div>
+                <div class="stat-value" id="best-performer">--</div>
+                <div class="stat-change positive" id="best-performer-change">
+                    <span>+0.00%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="holdings-section">
+            <div class="section-header">
+                <h2 class="section-title">Holdings</h2>
+                <button class="refresh-btn" id="refresh-btn" onclick="fetchPortfolioData()">
+                    <span id="refresh-icon">↻</span>
+                    <span>Refresh</span>
+                </button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Buy Price</th>
+                            <th>Current Price</th>
+                            <th>Quantity</th>
+                            <th>Investment</th>
+                            <th>Current Value</th>
+                            <th>P&L</th>
+                            <th>Return</th>
+                        </tr>
+                    </thead>
+                    <tbody id="holdings-tbody">
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 3rem;">
+                                Loading portfolio data...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🚀 Built with real-time data from Google Sheets | Auto-refreshes every 30 seconds</p>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURATION - Replace with your deployed web app URL
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzRYrSTFAqR_dRJ4Tpz2JMTVXK1J7pMKA8Wi-yYm-6j9_qhiRkhyVy7XoboRw29kujd9Q/exec';
+        
+        // State
+        let portfolioData = [];
+        let autoRefreshInterval = null;
+
+        // Format currency
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(value);
+        }
+
+        // Format percentage
+        function formatPercent(value) {
+            const sign = value >= 0 ? '+' : '';
+            return `${sign}${value.toFixed(2)}%`;
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorContainer = document.getElementById('error-container');
+            errorContainer.innerHTML = `
+                <div class="error-message">
+                    ⚠️ ${message}
+                </div>
+            `;
+        }
+
+        // Clear error message
+        function clearError() {
+            document.getElementById('error-container').innerHTML = '';
+        }
+
+        // Fetch portfolio data from Google Sheets
+        async function fetchPortfolioData() {
+            const refreshBtn = document.getElementById('refresh-btn');
+            const refreshIcon = document.getElementById('refresh-icon');
+            
+            refreshBtn.classList.add('loading');
+            refreshIcon.innerHTML = '<span class="loading-spinner"></span>';
+
+            try {
+                clearError();
+                
+                // Check if URL is configured
+                if (WEB_APP_URL === 'YOUR_DEPLOYED_WEB_APP_URL_HERE') {
+                    showError('Please configure your Web App URL in the HTML file (line 387)');
+                    refreshBtn.classList.remove('loading');
+                    refreshIcon.innerHTML = '↻';
+                    return;
+                }
+
+                console.log('Fetching data from:', WEB_APP_URL);
+                
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'GET',
+                    redirect: 'follow',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const text = await response.text();
+                console.log('Response text:', text);
+                
+                const result = JSON.parse(text);
+                console.log('Parsed result:', result);
+
+                if (!result.success) {
+                    throw new Error(result.error || 'Failed to fetch data');
+                }
+
+                if (!result.data || result.data.length === 0) {
+                    throw new Error('No data received from the spreadsheet');
+                }
+
+                portfolioData = result.data;
+                updateDashboard(result);
+                console.log('Dashboard updated successfully!');
+                
+            } catch (error) {
+                console.error('Error details:', error);
+                console.error('Error stack:', error.stack);
+                showError(`Failed to fetch portfolio data: ${error.message}. Check the browser console (F12) for more details.`);
+            } finally {
+                refreshBtn.classList.remove('loading');
+                refreshIcon.innerHTML = '↻';
+            }
+        }
+
+        // Update dashboard with fetched data
+        function updateDashboard(result) {
+            console.log('Updating dashboard with data:', result);
+            const data = result.data;
+            
+            if (!data || data.length === 0) {
+                console.error('No data to display');
+                showError('No portfolio data available');
+                return;
+            }
+            
+            // Calculate totals
+            let totalInvestment = 0;
+            let totalCurrentValue = 0;
+            let bestPerformer = null;
+            let bestPerformance = -Infinity;
+
+            data.forEach(stock => {
+                totalInvestment += stock.investment;
+                totalCurrentValue += stock.currentValue;
+                
+                if (stock.percentChange > bestPerformance) {
+                    bestPerformance = stock.percentChange;
+                    bestPerformer = stock;
+                }
+            });
+
+            const totalPnL = totalCurrentValue - totalInvestment;
+            const totalPnLPercent = totalInvestment > 0 ? (totalPnL / totalInvestment) * 100 : 0;
+
+            console.log('Calculated totals:', {
+                totalInvestment,
+                totalCurrentValue,
+                totalPnL,
+                totalPnLPercent,
+                bestPerformer: bestPerformer?.ticker
+            });
+
+            // Update stats cards
+            document.getElementById('total-investment').textContent = formatCurrency(totalInvestment);
+            document.getElementById('current-value').textContent = formatCurrency(totalCurrentValue);
+            
+            const pnlElement = document.getElementById('total-pnl');
+            pnlElement.textContent = formatCurrency(totalPnL);
+            pnlElement.className = 'stat-value ' + (totalPnL >= 0 ? 'positive' : 'negative');
+            
+            const pnlChangeElement = document.getElementById('total-pnl-change');
+            pnlChangeElement.innerHTML = `<span>${formatPercent(totalPnLPercent)}</span>`;
+            pnlChangeElement.className = 'stat-change ' + (totalPnL >= 0 ? 'positive' : 'negative');
+
+            // Update best performer
+            if (bestPerformer) {
+                document.getElementById('best-performer').textContent = bestPerformer.ticker;
+                document.getElementById('best-performer-change').innerHTML = `<span>${formatPercent(bestPerformance)}</span>`;
+            }
+
+            // Update market status
+            const marketStatus = document.getElementById('market-status');
+            marketStatus.textContent = result.marketOpen ? 'Market Open' : 'Market Closed';
+
+            // Update last update time
+            const lastUpdate = new Date(result.lastPriceUpdate);
+            document.getElementById('last-update').textContent = 
+                `Last updated: ${lastUpdate.toLocaleTimeString()}`;
+
+            // Update holdings table
+            updateHoldingsTable(data);
+            
+            console.log('Dashboard update complete!');
+        }
+
+        // Update holdings table
+        function updateHoldingsTable(data) {
+            const tbody = document.getElementById('holdings-tbody');
+            
+            if (data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                            No holdings found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = data.map(stock => {
+                const isPositive = stock.profitLoss >= 0;
+                return `
+                    <tr>
+                        <td>
+                            <div class="ticker">${stock.ticker}</div>
+                            <div class="stock-name">${stock.name}</div>
+                        </td>
+                        <td class="price">${formatCurrency(stock.buyPrice)}</td>
+                        <td class="price">${formatCurrency(stock.currentPrice)}</td>
+                        <td>${stock.quantity.toLocaleString()}</td>
+                        <td>${formatCurrency(stock.investment)}</td>
+                        <td>${formatCurrency(stock.currentValue)}</td>
+                        <td class="${isPositive ? 'positive' : 'negative'}" style="font-weight: 600;">
+                            ${formatCurrency(stock.profitLoss)}
+                        </td>
+                        <td>
+                            <span class="change-badge ${isPositive ? 'positive' : 'negative'}">
+                                ${isPositive ? '▲' : '▼'} ${formatPercent(stock.percentChange)}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Auto-refresh every 30 seconds
+        function startAutoRefresh() {
+            autoRefreshInterval = setInterval(fetchPortfolioData, 30000);
+        }
+
+        // Initialize dashboard
+        function init() {
+            fetchPortfolioData();
+            startAutoRefresh();
+        }
+
+        // Start on page load
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
